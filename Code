@@ -1,0 +1,79 @@
+import pandas as pd
+
+# Spielaufbau
+print(f"\n" + 20 * "-" + " Spielaufbau: " + 24 * "-")
+players = input("\nWie viele Spieler? ")
+try:
+    int(players)
+except ValueError:
+    while players.isalpha():
+        players = input("Bitte Anzahl Spieler angeben? ")
+players = int(players)
+names = []
+for i in range(players):
+    player = input(f"Bitte Name von Spieler {i+1} eingeben: ")
+    while player in names or player == "":
+        if player == "":
+            player = input(f"Bitte mindestens 1 Zeichen für Name von Spieler {i + 1} eingeben: ")
+        else:
+            player = input(f"Bitte einen Namen für Spieler {i + 1} eingeben, der noch nicht vergeben ist: ")
+    names.append(player)
+phase = {}
+punkte = {}
+for name in names:
+    phase[name] = 1
+    punkte[name] = 0
+print(f"\n" + 20 * "-" + " Aktueller Stand: " + 20 * "-" + f"\nPhase: {phase}\nPunkte: {punkte}\n\n" + 
+      20 * "-" + " !!! Spielstart !!! " + 20 * "-")
+
+# Spielablauf
+phasecounter = 0
+gamecounter = 0
+gamelist = []
+while phasecounter == 0:
+    gamecounter += 1
+    for number in names:
+        spielname = input("\nName: ")
+        search = [x for x in names if spielname in x]
+        print(search)
+        while len(search) > 1 or len(search) == 0:
+            spielname = input("\nBitte eindeutigen Namen eingeben: ")
+            search = [x for x in names if spielname in x]
+            print(search)
+        search = search[0]
+
+        phasecomplete = input("Phase abgeschlossen? (0/1) ")
+        try:
+            int(phasecomplete)
+        except ValueError:
+            phasecomplete = input("Bitte '0' oder '1' eingeben: ")
+        if phasecomplete != "":
+            phasecomplete = int(phasecomplete)
+            phase[search] = phase[search] + phasecomplete
+
+        spielpunkte = input("Punkte: ")
+        try:
+            int(spielpunkte)
+        except ValueError:
+            spielpunkte = input("Bitte Punktzahl eingeben: ")
+        if spielpunkte != "":
+            spielpunkte = int(spielpunkte)
+            punkte[search] = punkte[search] + spielpunkte
+
+    print("\n" + 20 * "-" + " Aktueller Stand: " + 20 * "-")
+    print("Phase : ", phase)
+    print("Punkte: ", punkte)
+
+    for key in phase:
+        if phase[key] > 10:
+            phasecounter = 1
+
+    dfname = pd.DataFrame([phase, punkte], index=["Phase", "Punkte"], columns=names)
+    gamelist.append(dfname)
+    df = pd.concat(gamelist)
+
+    if phasecounter != 1:
+        print(f"\n" + 20 * "-" + f" Nächste Runde: " + 22 * "-")
+
+# Spielende
+df.to_csv("F:/Spiele/Phase10.csv", mode="a", index=True)
